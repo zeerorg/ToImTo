@@ -11,11 +11,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+
 /**
  * Created by rishabh on 17/7/16.
  */
 public class FetchResult extends AsyncTask<String, Void, String> {
-    String JSON = null;
 
     @Override
     protected String doInBackground(String... params) {
@@ -24,15 +24,7 @@ public class FetchResult extends AsyncTask<String, Void, String> {
         String forecastJsonStr = null;
 
         try {
-            Uri.Builder buildURL = new Uri.Builder();
-            buildURL.scheme("http")
-                    .authority("www.omdbapi.com")
-                    .appendQueryParameter("t", params[0])
-                    .appendQueryParameter("tomatoes", "true")
-                    .appendQueryParameter("y", params[1])
-                    .appendQueryParameter("plot", "full");
-
-            URL url = new URL(buildURL.build().toString());
+            URL url = new URL(params[0]);
 
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setConnectTimeout(5000);
@@ -68,6 +60,7 @@ public class FetchResult extends AsyncTask<String, Void, String> {
                 try {
                     reader.close();
                 } catch (final IOException e) {
+                    //DOing Nothing
                 }
             }
         }
