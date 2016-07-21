@@ -13,10 +13,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.rishabh.toimto.Utilities.FetchResult;
-
 /**
  * A placeholder fragment containing a simple view.
+ *
+ * 'simple' HAHAHAHA
  */
 public class MainActivityFragment extends Fragment {
 
@@ -30,6 +30,7 @@ public class MainActivityFragment extends Fragment {
         final EditText search_text = (EditText) v.findViewById(R.id.search_text);
         Button search_button = (Button) v.findViewById(R.id.search_button);
 
+        // On pressing the 'Enter' key
         search_text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -42,6 +43,7 @@ public class MainActivityFragment extends Fragment {
             }
         });
 
+        //On clicking button
         search_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.e("Search", "Using button");
