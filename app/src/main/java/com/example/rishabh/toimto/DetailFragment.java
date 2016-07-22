@@ -1,18 +1,19 @@
 package com.example.rishabh.toimto;
 
 import android.content.Intent;
-import android.net.Uri;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.androidquery.AQuery;
 import com.example.rishabh.toimto.Utilities.FetchResult;
 import com.example.rishabh.toimto.Utilities.ParseResult;
-import com.androidquery.AQuery;
+import com.example.rishabh.toimto.Utilities.UrlHelper;
 
 import java.util.concurrent.ExecutionException;
 
@@ -34,45 +35,56 @@ public class DetailFragment extends Fragment {
         aq = new AQuery(getActivity(), v);
 
         String[] search = parseSearch(data);
-        Uri.Builder buildURL = new Uri.Builder();
-        buildURL.scheme("http")
-                .authority("www.omdbapi.com")
-                .appendQueryParameter("t", search[0])
-                .appendQueryParameter("tomatoes", "true")
-                .appendQueryParameter("y", search[1])
-                .appendQueryParameter("plot", "full");
-
-        FetchResult fetchTask = new FetchResult();
+        String movieSearch = UrlHelper.movieSearch(search[0]);
+        FetchResult fetchTask = new FetchResult(getContext());
         String jsonString = null;
         try {
-            jsonString = fetchTask.execute(buildURL.build().toString()).get();
+            jsonString = fetchTask.execute(movieSearch).get();
+            if (jsonString == null) {
+                Toast.makeText(getContext(), "No Connection :(", Toast.LENGTH_LONG).show();
+            } else {
+                ParseResult json = new ParseResult(jsonString);
+                String resultArray = json.get("results");
+//                Log.e("JSONArray", resultArray);
+
+                ParseResult result = json.getArrayElement(resultArray, 0);
+                String movie = UrlHelper.getMovie(result.get("id"));
+//                Log.e("URL", movie);
+
+                fetchTask = new FetchResult(getContext());
+                jsonString = fetchTask.execute(movie).get();
+                json = new ParseResult(jsonString);
+//                Log.e("JSONObject", jsonString);
+
+                String imdbId = json.get("imdb_id");
+                String omdb = UrlHelper.getOmdb(imdbId);
+                fetchTask = new FetchResult(getContext());
+                jsonString = fetchTask.execute(omdb).get();
+                json = new ParseResult(jsonString);
+                updateUI(json);
+                return v;
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-
-        ParseResult json = new ParseResult(jsonString);
-        updateUI(json);
-
         return v;
     }
 
-    private String[] parseSearch(String data){
+    private String[] parseSearch(String data) {
         String[] search = new String[2];
         int start = data.indexOf("(");
         int end = data.indexOf(")");
-        if (start == -1){
+        if (start == -1) {
             search[1] = null;
             search[0] = data;
-        }
-        else{
-            String year = data.substring(start+1, end);
-            if(year.matches("^\\d+$")){
+        } else {
+            String year = data.substring(start + 1, end);
+            if (year.matches("^\\d+$")) {
                 search[1] = year;
                 search[0] = data.substring(0, start);
-            }
-            else{
+            } else {
                 search[1] = null;
                 search[0] = data.substring(0, start);
             }
@@ -80,7 +92,7 @@ public class DetailFragment extends Fragment {
         return search;
     }
 
-    private void updateUI(ParseResult json){
+    private void updateUI(ParseResult json) {
         TextView title = (TextView) v.findViewById(R.id.title);
         TextView imdbRating = (TextView) v.findViewById(R.id.imdbRating);
         TextView tomatoesRating = (TextView) v.findViewById(R.id.tomatoesRating);
