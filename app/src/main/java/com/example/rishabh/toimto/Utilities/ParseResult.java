@@ -28,6 +28,14 @@ public class ParseResult {
         }
     }
 
+    public int getInt(String key){
+        try {
+            return(reader.getInt(key));
+        } catch (JSONException e) {
+            return 0;
+        }
+    }
+
     public String getTitle(){
         return (this.get("Title") + " (" + this.get("Year") + ")");
     }

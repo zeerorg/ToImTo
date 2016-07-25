@@ -60,7 +60,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:src="@drawable/imdb" />
+                    android:src="@drawable/ic_imdb" />
 
                 <TextView
                     android:id="@+id/imdbRating"
@@ -83,7 +83,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:src="@drawable/rotten" />
+                    android:src="@drawable/ic_tomatoes" />
 
                 <TextView
                     android:id="@+id/tomatoesRating"

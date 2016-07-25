@@ -1,6 +1,9 @@
 package com.example.rishabh.toimto;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -14,6 +17,8 @@ import com.androidquery.AQuery;
 import com.example.rishabh.toimto.Utilities.FetchResult;
 import com.example.rishabh.toimto.Utilities.ParseResult;
 import com.example.rishabh.toimto.Utilities.UrlHelper;
+import com.example.rishabh.toimto.Utilities.VideoContract;
+import com.example.rishabh.toimto.Utilities.VideoDbHelper;
 
 import java.util.concurrent.ExecutionException;
 
@@ -23,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 public class DetailFragment extends Fragment {
     View v;
     private AQuery aq;
+    private VideoDbHelper dbHelper;
 
     public DetailFragment() {
     }
@@ -30,49 +36,106 @@ public class DetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        //Initialize global variables
         v = inflater.inflate(R.layout.fragment_detail, container, false);
+        dbHelper = new VideoDbHelper(getContext());
         String data = getActivity().getIntent().getExtras().getString(Intent.EXTRA_TEXT);
         aq = new AQuery(getActivity(), v);
 
-        String[] search = parseSearch(data);
-        String movieSearch = UrlHelper.movieSearch(search[0]);
-        FetchResult fetchTask = new FetchResult(getContext());
-        String jsonString = null;
         try {
-            jsonString = fetchTask.execute(movieSearch).get();
-            if (jsonString == null) {
-                Toast.makeText(getContext(), "No Connection :(", Toast.LENGTH_LONG).show();
-            } else {
-                ParseResult json = new ParseResult(jsonString);
-                String resultArray = json.get("results");
-//                Log.e("JSONArray", resultArray);
-
-                ParseResult result = json.getArrayElement(resultArray, 0);
-                String movie = UrlHelper.getMovie(result.get("id"));
-//                Log.e("URL", movie);
-
-                fetchTask = new FetchResult(getContext());
-                jsonString = fetchTask.execute(movie).get();
-                json = new ParseResult(jsonString);
-//                Log.e("JSONObject", jsonString);
-
-                String imdbId = json.get("imdb_id");
-                String omdb = UrlHelper.getOmdb(imdbId);
-                fetchTask = new FetchResult(getContext());
-                jsonString = fetchTask.execute(omdb).get();
-                json = new ParseResult(jsonString);
-                updateUI(json);
-                return v;
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
+            //Search for movie and update
+            movieSearch(data);
+            return v;
+            } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        } catch (ExecutionException e1) {
+            e1.printStackTrace();
         }
         return v;
     }
 
-    private String[] parseSearch(String data) {
+    private void updateUI(ParseResult json) {
+        TextView title = (TextView) v.findViewById(R.id.title);
+        TextView imdbRating = (TextView) v.findViewById(R.id.imdbRating);
+        TextView tomatoesRating = (TextView) v.findViewById(R.id.tomatoesRating);
+
+        title.setText(json.getTitle());
+        imdbRating.setText(json.get("imdbRating"));
+        tomatoesRating.setText(json.get("tomatoRating"));
+        aq.id(R.id.poster).image(json.get("Poster"), false, false);
+        Log.e("Image", "Loaded");
+    }
+
+    public void insertVideoData(String tmdbJsonString, String omdbJsonString, String type, String tag){
+
+        ParseResult tmdbJson = new ParseResult(tmdbJsonString);
+        ParseResult omdbJson = new ParseResult(omdbJsonString);
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(VideoContract.VideoEntry._ID, Integer.parseInt(tmdbJson.get("id")));
+        values.put(VideoContract.VideoEntry.COLUMN_IMDB_ID, tmdbJson.get("imdb_id"));
+        values.put(VideoContract.VideoEntry.COLUMN_OMDB_JSON, omdbJsonString);
+        values.put(VideoContract.VideoEntry.COLUMN_TMDB_JSON, tmdbJsonString);
+        values.put(VideoContract.VideoEntry.COLUMN_YEAR, omdbJson.get("Year"));
+        values.put(VideoContract.VideoEntry.COLUMN_TITLE, omdbJson.get("Title"));
+        values.put(VideoContract.VideoEntry.COLUMN_POSTER, omdbJson.get("Poster"));
+        values.put(VideoContract.VideoEntry.COLUMN_TYPE, type);
+        values.put(VideoContract.VideoEntry.COLUMN_TAG, tag);
+        values.put(VideoContract.VideoEntry.COLUMN_DATE_TIME, java.lang.System.currentTimeMillis());
+
+        db.insert(VideoContract.VideoEntry.TABLE_NAME, null, values);
+    }
+
+    public void testAll() {
+//        TextView dbString = (TextView) v.findViewById(R.id.dbStringTest);
+        String result = "";
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + VideoContract.VideoEntry.TABLE_NAME, null);
+        while (cursor.moveToNext()) {
+            result += cursor.getString(cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_TITLE));
+        }
+        db.close();
+        cursor.close();
+//        dbString.setText(result);
+    }
+
+    private void movieSearch(String movieSearch) throws ExecutionException, InterruptedException {
+        FetchResult fetchTask = new FetchResult(getContext());
+        String search = UrlHelper.movieSearch(movieSearch);
+        String jsonString = null;
+        String imdbJsonString = null;
+        String tmdbJsonString = null;
+        jsonString = fetchTask.execute(search).get();
+        if (jsonString == null) {
+            Toast.makeText(getContext(), "No Connection :(", Toast.LENGTH_LONG).show();
+        } else {
+            ParseResult json = new ParseResult(jsonString);
+            String resultArray = json.get("results");
+//                Log.e("JSONArray", resultArray);
+
+            ParseResult result = json.getArrayElement(resultArray, 0);
+            String movie = UrlHelper.getMovie(result.get("id"));
+//                Log.e("URL", movie);
+
+            fetchTask = new FetchResult(getContext());
+            tmdbJsonString = fetchTask.execute(movie).get();
+            json = new ParseResult(tmdbJsonString);
+//                Log.e("JSONObject", jsonString);
+
+            String imdbId = json.get("imdb_id");
+            String omdb = UrlHelper.getOmdb(imdbId);
+            fetchTask = new FetchResult(getContext());
+            imdbJsonString = fetchTask.execute(omdb).get();
+            json = new ParseResult(imdbJsonString);
+            updateUI(json);
+            insertVideoData(tmdbJsonString, imdbJsonString, "movie", "none");
+            testAll();
+        }
+    }
+}
+
+    /*private String[] parseSearch(String data) {
         String[] search = new String[2];
         int start = data.indexOf("(");
         int end = data.indexOf(")");
@@ -90,20 +153,8 @@ public class DetailFragment extends Fragment {
             }
         }
         return search;
-    }
+    }*/
 
-    private void updateUI(ParseResult json) {
-        TextView title = (TextView) v.findViewById(R.id.title);
-        TextView imdbRating = (TextView) v.findViewById(R.id.imdbRating);
-        TextView tomatoesRating = (TextView) v.findViewById(R.id.tomatoesRating);
-
-        title.setText(json.getTitle());
-        imdbRating.setText(json.get("imdbRating"));
-        tomatoesRating.setText(json.get("tomatoRating"));
-        aq.id(R.id.poster).image(json.get("Poster"), false, false);
-        Log.e("Image", "Loaded");
-    }
-}
 /*
 {
    "Title":"Sultan",
