@@ -21,8 +21,8 @@
             android:text="Title (YEAR)"
             android:textAlignment="center"
             android:textIsSelectable="true"
-            android:textSize="30dp"
-            android:textStyle="bold" />
+            android:textSize="34sp"
+            android:fontFamily="sans-serif" />
 
     </LinearLayout>
 

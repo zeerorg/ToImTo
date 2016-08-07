@@ -10,6 +10,7 @@
         android:layout_height="match_parent"
         android:text="@string/hello_blank_fragment"
         android:id="@+id/history"
-        android:textSize="20dp"/>
+        android:textSize="20dp"
+        android:fontFamily="@string/abc_font_family_headline_material" />
 
 </FrameLayout>

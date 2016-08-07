@@ -39,7 +39,6 @@ public class HistoryFragment extends Fragment {
         Cursor cursor = db.rawQuery("SELECT * FROM " + VideoContract.VideoEntry.TABLE_NAME, null);
         while (cursor.moveToNext()) {
             result += cursor.getString(cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_TITLE));
-            result += " : " + cursor.getInt(cursor.getColumnIndex(VideoContract.VideoEntry.COLUMN_DATE_TIME));
             result += "\n";
         }
         db.close();
