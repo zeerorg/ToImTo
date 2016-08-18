@@ -2,11 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="160dp"
-    android:gravity="center_vertical|center_horizontal">
+    android:gravity="bottom|left"
+    android:background="@drawable/navigation_background">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Navigation Drawer"/>
+        android:text="Navigate"
+        android:fontFamily="sans-serif"
+        android:textSize="24sp"
+        android:paddingLeft="16dp"
+        android:paddingBottom="8dp"
+        android:textColor="#FFFFFF"/>
 
 </LinearLayout>

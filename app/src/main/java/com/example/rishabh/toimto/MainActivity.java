@@ -1,5 +1,6 @@
 package com.example.rishabh.toimto;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -13,12 +14,17 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     String[] listContent;
@@ -54,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        // Initially load the main fragment
         Fragment fragment = new MainActivityFragment();
         Bundle args = new Bundle();
 
@@ -61,6 +69,24 @@ public class MainActivity extends AppCompatActivity {
         fragmentManager.beginTransaction()
                 .replace(R.id.content_frame, fragment)
                 .commit();
+
+
+        // Searching using search bar
+        final EditText search_text = (EditText) findViewById(R.id.search_text_bar);
+        // On pressing the 'Enter' key
+        search_text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    Log.e("Search", "Using enter key");
+                    Intent intent = new Intent(MainActivity.this, Detail.class);
+                    intent.putExtra(Intent.EXTRA_TEXT, search_text.getText().toString());
+                    startActivity(intent);
+                    return true;
+                }
+                return false;
+            }
+        });
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

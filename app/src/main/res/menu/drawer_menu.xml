@@ -4,14 +4,17 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_movies"
-            android:title="Movies" />
+            android:title="@string/nav_movies"
+            android:icon="@drawable/movie_option"/>
         <item
             android:id="@+id/nav_series"
-            android:title="TV Series" />
+            android:title="@string/nav_tv"
+            android:icon="@drawable/tv_option"/>
 
         <item
             android:id="@+id/nav_history"
-            android:title="History" />
+            android:title="@string/nav_history"
+            android:icon="@drawable/history_option"/>
     </group>
 
 </menu>

@@ -5,8 +5,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout">
 
+    <!-- This will include what will be shown when navigation drawer is closed -->
     <include layout="@layout/activity_main" />
 
+    <!-- This will include contents of navigation drawer -->
     <android.support.design.widget.NavigationView
         android:id="@+id/drawer_navigation"
         android:layout_width="wrap_content"
