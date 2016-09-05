@@ -2,6 +2,7 @@ package com.example.rishabh.toimto;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -44,7 +45,7 @@ public class MainActivityFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_main, container, false);
 
         recyclerView = (RecyclerView) v.findViewById(R.id.rec_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
 
         adapter = new ListAdapter(ListData.getListData(), getContext());
         recyclerView.setAdapter(adapter);
@@ -136,7 +137,10 @@ public class MainActivityFragment extends Fragment {
 
                 text = (TextView) itemView.findViewById(R.id.card_text);
                 image = (ImageView) itemView.findViewById(R.id.card_image);
+
                 container = itemView.findViewById(R.id.card_root);
+
+
             }
         }
 
@@ -144,10 +148,10 @@ public class MainActivityFragment extends Fragment {
 
     private static class ListData{
 
-        public final static String[] text = {"first", "second", "third"};
-        public final static int[] image = {android.R.drawable.ic_delete,
-                android.R.drawable.ic_menu_camera,
-                android.R.drawable.ic_notification_clear_all};
+        public final static String[] text = {"Suicide Squad", "Jason Bourne", "Batman: The Killing Joke"};
+        public final static int[] image = {R.drawable.test_poster,
+                R.drawable.test_poster2,
+                R.drawable.test_poster3};
 
         public static List<ListItem> getListData(){
             List<ListItem> data = new ArrayList<ListItem>();

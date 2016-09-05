@@ -26,6 +26,9 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * A placeholder fragment containing a simple view.
+ *
+ * Just pass the movie name to get t details.
+ *
  */
 public class DetailFragment extends Fragment {
     View v;
