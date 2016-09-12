@@ -2,28 +2,19 @@ package com.example.rishabh.toimto;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.rishabh.toimto.Utilities.UrlHelper;
+import com.example.rishabh.toimto.Utilities.MyRecyclerView;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -31,10 +22,11 @@ import java.util.List;
  *
  * 'simple' HAHAHAHA
  */
-public class MainActivityFragment extends Fragment {
+public class MainActivityFragment extends Fragment implements MyRecyclerView.ListAdapter.ItemClickCallback{
 
     private RecyclerView recyclerView;
-    private ListAdapter adapter;
+    private MyRecyclerView.ListAdapter adapter;
+    private List<MyRecyclerView.ListItem> listData;
 
     public MainActivityFragment() {
     }
@@ -43,12 +35,14 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_main, container, false);
+        listData = MyRecyclerView.ListData.getListData();
 
         recyclerView = (RecyclerView) v.findViewById(R.id.rec_list);
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
 
-        adapter = new ListAdapter(ListData.getListData(), getContext());
+        adapter = new MyRecyclerView.ListAdapter(listData, getContext());
         recyclerView.setAdapter(adapter);
+        adapter.setItemClickCallback(this);
 
         /*final EditText search_text = (EditText) v.findViewById(R.id.search_text);
         Button search_button = (Button) v.findViewById(R.id.search_button);
@@ -78,6 +72,14 @@ public class MainActivityFragment extends Fragment {
         return v;
     }
 
+    @Override
+    public void onItemClick(int p) {
+        MyRecyclerView.ListItem item = listData.get(p);
+        Intent intent = new Intent(getContext(), Detail.class);
+        intent.putExtra(Intent.EXTRA_TEXT, item.getText().toString());
+        startActivity(intent);
+    }
+
     private class FetchMovies extends AsyncTask<Void, Void, Void>
     {
         Context mContext;
@@ -94,108 +96,6 @@ public class MainActivityFragment extends Fragment {
             Log.e("Data", data);
             return null;
         }
-    }
-
-
-    private static class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListHolder>{
-
-        private LayoutInflater inflater;
-        private List<ListItem> list;
-
-        public ListAdapter(List<ListItem> list, Context context){
-            this.inflater = LayoutInflater.from(context);
-            this.list = list;
-        }
-
-        @Override
-        public ListHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = inflater.inflate(R.layout.card_item, parent, false);
-            return new ListHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(ListHolder holder, int position){
-            //Log.e("item", item.getText()+" : "+item.getImage()+" : "+position);
-            ListItem item = list.get(position);
-            holder.text.setText(item.getText());
-            holder.image.setImageResource(item.getImage());
-        }
-
-        @Override
-        public int getItemCount() {
-            return ListData.text.length * 5;
-        }
-
-        class ListHolder extends RecyclerView.ViewHolder{
-
-            private TextView text;
-            private ImageView image;
-            private View container;
-
-            public ListHolder(View itemView) {
-                super(itemView);
-
-                text = (TextView) itemView.findViewById(R.id.card_text);
-                image = (ImageView) itemView.findViewById(R.id.card_image);
-
-                container = itemView.findViewById(R.id.card_root);
-
-
-            }
-        }
-
-    }
-
-    private static class ListData{
-
-        public final static String[] text = {"Suicide Squad", "Jason Bourne", "Batman: The Killing Joke"};
-        public final static int[] image = {R.drawable.test_poster,
-                R.drawable.test_poster2,
-                R.drawable.test_poster3};
-
-        public static List<ListItem> getListData(){
-            List<ListItem> data = new ArrayList<ListItem>();
-
-            for(int x=0; x<5; x++){
-                for(int y=0; y<text.length; y++){
-                    data.add(new ListItem(text[y], image[y]));
-                }
-            }
-
-            return data;
-
-        }
-    }
-
-    private static class ListItem{
-
-        private String text;
-        private int image;
-
-        public ListItem(String text, int image){
-            setText(text);
-            setImage(image);
-        }
-
-        public ListItem(){}
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-
-        public int getImage() {
-            return image;
-        }
-
-        public void setImage(int image) {
-            this.image = image;
-        }
-
-        public String toString() {return getText()+" : "+getImage();}
     }
 
 }
