@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 
 public class Detail extends AppCompatActivity {
     private View v;
+    CollapsingToolbarLayout collapsingToolbarLayout;
     private VideoDbHelper dbHelper;
 
     @Override
@@ -37,9 +39,14 @@ public class Detail extends AppCompatActivity {
         dbHelper = new VideoDbHelper(Detail.this);
         String data = getIntent().getExtras().getString(Intent.EXTRA_TEXT);
 
+        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        collapsingToolbarLayout.setTitle("Detail");
+        //collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color.transparent));
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         try {
             //Search for movie and update
@@ -88,6 +95,12 @@ public class Detail extends AppCompatActivity {
         }
 
         private void updateUI(ParseResult json) {
+            ImageView backdrop = (ImageView) collapsingToolbarLayout.findViewById(R.id.backdrop);
+
+            Glide.with(mContext)
+                    .load("http://image.tmdb.org/t/p/w500"+json.get("backdrop_path"))
+                    .into(backdrop);
+            collapsingToolbarLayout.setTitle(json.get("title"));
             /*TextView title = (TextView) v.findViewById(R.id.title);
             TextView imdbRating = (TextView) v.findViewById(R.id.imdbRating);
             TextView tomatoesRating = (TextView) v.findViewById(R.id.tomatoesRating);
@@ -152,7 +165,7 @@ public class Detail extends AppCompatActivity {
 
                 insertVideoData(tmdbJsonString, imdbJsonString, "movie", null);
             }
-            return json;
+            return new ParseResult(tmdbJsonString);
         }
     }
 }
