@@ -13,10 +13,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androidquery.AQuery;
+import com.bumptech.glide.Glide;
 import com.example.rishabh.toimto.Utilities.ParseResult;
 import com.example.rishabh.toimto.Utilities.UrlHelper;
 import com.example.rishabh.toimto.Utilities.VideoContract;
@@ -32,7 +34,6 @@ import java.util.concurrent.ExecutionException;
  */
 public class DetailFragment extends Fragment {
     View v;
-    private AQuery aq;
     private VideoDbHelper dbHelper;
 
     public DetailFragment() {
@@ -45,7 +46,6 @@ public class DetailFragment extends Fragment {
         v = inflater.inflate(R.layout.fragment_detail, container, false);
         dbHelper = new VideoDbHelper(getContext());
         String data = getActivity().getIntent().getExtras().getString(Intent.EXTRA_TEXT);
-        aq = new AQuery(getActivity(), v);
 
         try {
             //Search for movie and update
@@ -117,7 +117,10 @@ public class DetailFragment extends Fragment {
             title.setText(json.getTitle());
             imdbRating.setText(json.get("imdbRating"));
             tomatoesRating.setText(json.get("tomatoRating"));
-            aq.id(R.id.poster).image(json.get("Poster"), false, false);
+            //aq.id(R.id.poster).image(json.get("Poster"), false, false);
+            Glide.with(mContext)
+                    .load(json.get("Poster"))
+                    .into((ImageView) v.findViewById(R.id.poster));
             Log.e("Image", "Loaded");
         }
 
@@ -153,7 +156,7 @@ public class DetailFragment extends Fragment {
                 String resultArray = json.get("results");
 //                Log.e("JSONArray", resultArray);
 
-                ParseResult result = json.getArrayElement(resultArray, 0);
+                ParseResult result = new ParseResult(json.getArrayElement(resultArray, 0));
                 String movie = UrlHelper.getMovieUrl(result.get("id"));
 //                Log.e("URL", movie);
 

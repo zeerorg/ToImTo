@@ -40,12 +40,11 @@ public class ParseResult {
         return (this.get("Title") + " (" + this.get("Year") + ")");
     }
 
-    public ParseResult getArrayElement(String arrays, int index){
+    public String getArrayElement(String arrays, int index){
         try {
             JSONArray array = new JSONArray(arrays);
-            String mainJson = array.get(index).toString();
-            Log.e("JSONObject", mainJson);
-            return (new ParseResult(mainJson));
+            //Log.e("JSONObject", mainJson);
+            return (array.get(index).toString());
         } catch (JSONException e) {
             e.printStackTrace();
             return null;

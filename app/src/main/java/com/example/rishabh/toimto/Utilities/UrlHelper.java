@@ -59,7 +59,7 @@ public class UrlHelper {
 
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
-        String forecastJsonStr = null;
+        String jsonStr = null;
 
         try {
             ConnectivityManager connectivityManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -92,7 +92,7 @@ public class UrlHelper {
             if (buffer.length() == 0) {
                 return null;
             }
-            forecastJsonStr = buffer.toString();
+            jsonStr = buffer.toString();
         } catch (IOException e) {
             Log.e("FetchData", "IOException: " + e.toString());
             return null;
@@ -108,6 +108,6 @@ public class UrlHelper {
                 }
             }
         }
-        return forecastJsonStr;
+        return jsonStr;
     }
 }
