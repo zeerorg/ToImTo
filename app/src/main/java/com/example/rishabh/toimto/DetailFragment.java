@@ -17,7 +17,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.androidquery.AQuery;
 import com.bumptech.glide.Glide;
 import com.example.rishabh.toimto.Utilities.ParseResult;
 import com.example.rishabh.toimto.Utilities.UrlHelper;
@@ -33,7 +32,7 @@ import java.util.concurrent.ExecutionException;
  *
  */
 public class DetailFragment extends Fragment {
-    View v;
+    private View v;
     private VideoDbHelper dbHelper;
 
     public DetailFragment() {
@@ -57,6 +56,12 @@ public class DetailFragment extends Fragment {
             e1.printStackTrace();
         }
         return v;
+    }
+
+    private void movieSearch(String movieSearch) throws ExecutionException, InterruptedException {
+        String[] params = {movieSearch};
+        FetchResult fetchTask = new FetchResult(getContext());
+        fetchTask.execute(params);
     }
 
     public void insertVideoData(String tmdbJsonString, String omdbJsonString, String type, String tag) {
@@ -93,13 +98,6 @@ public class DetailFragment extends Fragment {
 //        dbString.setText(result);
     }
 
-    private void movieSearch(String movieSearch) throws ExecutionException, InterruptedException {
-        String[] params = {movieSearch};
-        FetchResult fetchTask = new FetchResult(getContext());
-        fetchTask.execute(params);
-    }
-
-
     private class FetchResult extends AsyncTask<String, Void, ParseResult> {
 
         private Context mContext;
@@ -126,8 +124,11 @@ public class DetailFragment extends Fragment {
 
         @Override
         protected void onPostExecute(ParseResult json) {
-            updateUI(json);
             mDialog.dismiss();
+            if (json == null)
+                Toast.makeText(mContext, "No Connection :(", Toast.LENGTH_LONG).show();
+            else
+                updateUI(json);
             super.onPostExecute(json);
         }
 
@@ -143,14 +144,14 @@ public class DetailFragment extends Fragment {
         protected ParseResult doInBackground(String... strings) {
 
             String search = UrlHelper.movieSearchUrl(strings[0]);
-            String jsonString = null;
-            String imdbJsonString = null;
-            String tmdbJsonString = null;
-            ParseResult json = null;
+            String jsonString;
+            String imdbJsonString;
+            String tmdbJsonString;
+            ParseResult json;
 
             jsonString = UrlHelper.getRequest(search, mContext);
             if (jsonString == null) {
-                Toast.makeText(mContext, "No Connection :(", Toast.LENGTH_LONG).show();
+                return null;
             } else {
                 json = new ParseResult(jsonString);
                 String resultArray = json.get("results");

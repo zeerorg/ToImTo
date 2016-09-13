@@ -74,7 +74,7 @@ public class MainActivityFragment extends Fragment implements MyRecyclerView.Lis
             if(MyRecyclerView.ListData.getListData().size() == 10)
                 return null;
 
-            String link = "http://api.themoviedb.org/3/movie/popular?api_key=0202ead4ea370b743c58c0e863ff6bd9";
+            String link = "http://api.themoviedb.org/3/movie/now_playing?api_key=0202ead4ea370b743c58c0e863ff6bd9";
             return UrlHelper.getRequest(link, mContext);
         }
 
@@ -100,9 +100,6 @@ public class MainActivityFragment extends Fragment implements MyRecyclerView.Lis
             listData = MyRecyclerView.ListData.getListData();
             adapter.setListData(listData);
             adapter.notifyDataSetChanged();
-            /*adapter = new MyRecyclerView.ListAdapter(MyRecyclerView.ListData.getListData(), getContext());
-            recyclerView.swapAdapter(adapter, false);
-            adapter.setItemClickCallback(MainActivityFragment.this);*/
         }
     }
 

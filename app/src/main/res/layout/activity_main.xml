@@ -28,6 +28,7 @@
                     android:imeOptions="actionSearch"
                     android:inputType="text"
                     android:fontFamily="sans-serif"
+                    android:drawableLeft="@android:drawable/ic_menu_search"
                     />
 
         </android.support.v7.widget.Toolbar>
