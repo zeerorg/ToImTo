@@ -5,12 +5,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +21,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.example.rishabh.toimto.Utilities.ParseResult;
 import com.example.rishabh.toimto.Utilities.UrlHelper;
 import com.example.rishabh.toimto.Utilities.VideoContract;
@@ -95,24 +100,12 @@ public class Detail extends AppCompatActivity {
         }
 
         private void updateUI(ParseResult json) {
-            ImageView backdrop = (ImageView) collapsingToolbarLayout.findViewById(R.id.backdrop);
-
+            final ImageView backdrop = (ImageView) collapsingToolbarLayout.findViewById(R.id.backdrop);
             Glide.with(mContext)
                     .load("http://image.tmdb.org/t/p/w500"+json.get("backdrop_path"))
                     .into(backdrop);
             collapsingToolbarLayout.setTitle(json.get("title"));
-            /*TextView title = (TextView) v.findViewById(R.id.title);
-            TextView imdbRating = (TextView) v.findViewById(R.id.imdbRating);
-            TextView tomatoesRating = (TextView) v.findViewById(R.id.tomatoesRating);
-
-            title.setText(json.getTitle());
-            imdbRating.setText(json.get("imdbRating"));
-            tomatoesRating.setText(json.get("tomatoRating"));
-            //aq.id(R.id.poster).image(json.get("Poster"), false, false);
-            Glide.with(mContext)
-                    .load(json.get("Poster"))
-                    .into((ImageView) v.findViewById(R.id.poster));
-            Log.e("Image", "Loaded");*/
+            //TODO: Update the detailView Here
         }
 
         @Override
@@ -161,11 +154,10 @@ public class Detail extends AppCompatActivity {
                 String imdbId = json.get("imdb_id");
                 String omdb = UrlHelper.getOmdbUrl(imdbId);
                 imdbJsonString = UrlHelper.getRequest(omdb, mContext);
-                json = new ParseResult(imdbJsonString);
 
                 insertVideoData(tmdbJsonString, imdbJsonString, "movie", null);
             }
-            return new ParseResult(tmdbJsonString);
+            return json;
         }
     }
 }
