@@ -5,7 +5,7 @@
         <shape android:shape="rectangle">
             <solid android:color="#bebbbb" />
             <stroke android:width="1dip" android:color="#d6d2d2" />
-            <size android:width="170dp" />
+            <size android:width="@dimen/rate_button" />
         </shape>
     </item>
 
@@ -13,7 +13,7 @@
         <shape android:shape="rectangle">
             <solid android:color="#ffffff" />
             <stroke android:width="1dip" android:color="#d6d2d2" />
-            <size android:width="170dp" />
+            <size android:width="@dimen/rate_button" />
         </shape>
     </item>
 </selector>

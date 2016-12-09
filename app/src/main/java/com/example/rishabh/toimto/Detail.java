@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -18,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -89,18 +91,18 @@ public class Detail extends AppCompatActivity {
         values.put(VideoContract.VideoEntry.COLUMN_TAG, tag);
         values.put(VideoContract.VideoEntry.COLUMN_DATE_TIME, java.lang.System.currentTimeMillis());
 
-        db.insert(VideoContract.VideoEntry.TABLE_NAME, null, values);
+        try {
+            db.insert(VideoContract.VideoEntry.TABLE_NAME, null, values);
+        } catch (SQLiteConstraintException e) {
+            Log.e("Database", "Already Exists");
+        }
     }
 
-    public void getVideoData(String tmdb_id){
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor resultSet = db.rawQuery("Select * from video",null);
-        resultSet.moveToFirst();
-        String username = resultSet.getString(1);
-        String password = resultSet.getString(2);
+    public void fabClick(View view) {
+        Log.e("FLoating Button", "Clicked");
     }
 
-    private class FetchResult extends AsyncTask<String, Void, ParseResult> {
+    private class FetchResult extends AsyncTask<String, Void, String> {
 
         private Context mContext;
         private ProgressDialog mDialog;
@@ -109,13 +111,19 @@ public class Detail extends AppCompatActivity {
             mContext = context;
         }
 
-        private void updateUI(ParseResult json) {
-            final ImageView backdrop = (ImageView) collapsingToolbarLayout.findViewById(R.id.backdrop);
+        private void updateUI(String imdbId) {
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor resultSet = db.rawQuery("Select * from video where " + VideoContract.VideoEntry.COLUMN_IMDB_ID + " = '" + imdbId + "'", null);
+            resultSet.moveToFirst();
+            ParseResult tmdbJson = new ParseResult(resultSet.getString(resultSet.getColumnIndex(VideoContract.VideoEntry.COLUMN_TMDB_JSON)));
+            ParseResult omdbJson = new ParseResult(resultSet.getString(resultSet.getColumnIndex(VideoContract.VideoEntry.COLUMN_OMDB_JSON)));
+            ImageView backdrop = (ImageView) collapsingToolbarLayout.findViewById(R.id.backdrop);
             TextView info_text = (TextView) findViewById(R.id.info_text);
-            String description;
-            description = json.get("overview");
+            Button imdb_rating = (Button) findViewById(R.id.imdb);
+            Button tomato_rating = (Button) findViewById(R.id.rotten);
+
             Glide.with(mContext)
-                    .load("http://image.tmdb.org/t/p/w500" + json.get("backdrop_path"))
+                    .load("http://image.tmdb.org/t/p/w500" + tmdbJson.get("backdrop_path"))
                     .asBitmap()
                     .into(new BitmapImageViewTarget(backdrop) {
                         @Override
@@ -127,13 +135,17 @@ public class Detail extends AppCompatActivity {
                             collapsingToolbarLayout.setContentScrimColor(p.getLightMutedColor(0x000000));
                         }
                     });
-            collapsingToolbarLayout.setTitle(json.get("title"));
-            info_text.setText(description);
+            collapsingToolbarLayout.setTitle(tmdbJson.get("title"));
+            info_text.setText(omdbJson.get("Plot"));
+            imdb_rating.setText(omdbJson.get("imdbRating"));
+            tomato_rating.setText(omdbJson.get("tomatoRating"));
+
+            resultSet.close();
             //TODO: Update the detailView Here
         }
 
         @Override
-        protected void onPostExecute(ParseResult json) {
+        protected void onPostExecute(String json) {
             mDialog.dismiss();
             if (json == null)
                 Toast.makeText(mContext, "No Connection :(", Toast.LENGTH_LONG).show();
@@ -151,12 +163,13 @@ public class Detail extends AppCompatActivity {
         }
 
         @Override
-        protected ParseResult doInBackground(String... strings) {
+        protected String doInBackground(String... strings) {
 
             String search = UrlHelper.movieSearchUrl(strings[0]);
             String jsonString;
             String imdbJsonString;
             String tmdbJsonString;
+            String imdbId;
             ParseResult json;
 
             jsonString = UrlHelper.getRequest(search, mContext);
@@ -175,14 +188,14 @@ public class Detail extends AppCompatActivity {
                 json = new ParseResult(tmdbJsonString);
                 Log.e("tmdb", tmdbJsonString);
 
-                String imdbId = json.get("imdb_id");
+                imdbId = json.get("imdb_id");
                 String omdb = UrlHelper.getOmdbUrl(imdbId);
                 imdbJsonString = UrlHelper.getRequest(omdb, mContext);
                 Log.e("omdb", imdbJsonString);
 
                 insertVideoData(tmdbJsonString, imdbJsonString, "movie", null);
             }
-            return json;
+            return imdbId;
         }
     }
 }
